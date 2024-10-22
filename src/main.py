@@ -82,7 +82,7 @@ def print_tree(directory: str, prefix: str = '', output: Optional[TextIO] = None
 def main() -> None:
     # Create an argument parser
     parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
-    parser.add_argument('directory', type=str, help='The directory to display')
+    parser.add_argument('directory', type=str, nargs='?', default='.', help='The directory to display (default: current directory)')
     parser.add_argument('-o', '--output', type=str, help='The output file to write the diagram to')
     args = parser.parse_args()
 
@@ -99,8 +99,6 @@ def main() -> None:
                 print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
             except PermissionError:
                 print(f"\033[31mPermission denied to write to {args.output}\033[0m")
-            except NotADirectoryError:
-                print(f"\033[31m{args.output} is not a valid directory\033[0m")
         else:
             print(f"\033[1m{directory}\033[0m")
             print_tree(directory)
