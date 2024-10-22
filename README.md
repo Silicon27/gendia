@@ -40,3 +40,6 @@ gendia path/to/directory
 ```
 This should generate a tree structured diagram for the directory you specified. You can also specify the output file by using the `-o` flag:
 ```bash
+gendia path/to/directory -o output.txt
+```
+This should generate a tree structured diagram for the directory you specified and save it to `output.txt`.
