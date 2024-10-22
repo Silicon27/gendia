@@ -20,7 +20,7 @@ COLOR_LIGHT_GREEN = '\033[92m'  # Light green for video files
 COLOR_LIGHT_YELLOW = '\033[93m'  # Light yellow for compressed files
 COLOR_LIGHT_RED = '\033[91m'  # Light red for executable files
 COLOR_LIGHT_PURPLE = '\033[95m'  # Light purple for library directories
-UNDERLINE = '\033[4m'  # Underline for .gdi files
+UNDERLINE = '\033[4m'  # Underline for symbolic links
 
 def get_color(entry: str) -> str:
     """Returns color based on file type."""
@@ -52,10 +52,8 @@ def get_color(entry: str) -> str:
         return COLOR_LIGHT_YELLOW
     elif entry.endswith('.exe'):
         return COLOR_LIGHT_RED
-    elif entry.endswith('.gdi'):
-        return UNDERLINE
     elif os.path.islink(entry):
-        return COLOR_GRAY
+        return UNDERLINE
     else:
         return COLOR_RESET
 
@@ -85,31 +83,29 @@ def main() -> None:
     # Create an argument parser
     parser = argparse.ArgumentParser(description="Display a color-coded tree-like directory structure")
     parser.add_argument('directory', type=str, help='The directory to display')
-    parser.add_argument('-o', '--output_dir', type=str, help='The directory to write the output file to')
+    parser.add_argument('-o', '--output', type=str, help='The output file to write the diagram to')
     args = parser.parse_args()
 
     # Get the absolute path of the directory
     directory = os.path.abspath(args.directory)
     if os.path.isdir(directory):
-        if args.output_dir:
-            output_dir = os.path.abspath(args.output_dir)
-            if not os.path.isdir(output_dir):
-                print(f"{output_dir} is not a valid directory")
-                return
+        if args.output:
             try:
-                output_file_path = os.path.join(output_dir, 'tree_structure.gdi')
-            except Exception as e:
-                print(f"Error: {e}")
-                return
-            with open(output_file_path, 'w+') as output_file:
-                output_file.write(directory + '\n')
-                print_tree(directory, output=output_file)
-            print(f"Tree structure written to {output_file_path}")
+                with open(args.output, 'w+') as output_file:
+                    output_file.write(directory + '\n')
+                    print_tree(directory, output=output_file)
+                print(f"\033[32mDirectory structure written to {args.output}\033[0m")
+            except IsADirectoryError:
+                print(f"\033[31m{args.output} is a directory, please provide a valid file name\033[0m")
+            except PermissionError:
+                print(f"\033[31mPermission denied to write to {args.output}\033[0m")
+            except NotADirectoryError:
+                print(f"\033[31m{args.output} is not a valid directory\033[0m")
         else:
             print(f"\033[1m{directory}\033[0m")
             print_tree(directory)
     else:
-        print(f"{directory} is not a valid directory")
+        print(f"\033[31m{directory} is not a valid directory\033[0m")
 
 if __name__ == '__main__':
     main()
